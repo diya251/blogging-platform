@@ -1,65 +1,148 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const [posts, setPosts] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+
+    const fetchPosts = async () => {
+      const res = await fetch("/api/posts");
+      const data = await res.json();
+      setPosts(data);
+    };
+    fetchPosts();
+  }, []);
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-stone-50">
+      {/* Header */}
+      <header className="bg-white border-b border-stone-200 px-8 h-[60px] flex items-center justify-between">
+        <h1 className="font-serif text-[22px] font-semibold tracking-tight text-stone-900">
+          Write<span className="text-stone-400">Flow</span>
+        </h1>
+
+        <div className="flex items-center gap-3">
+          {isLoggedIn ? (
+            <>
+              <a
+                href="/create-post"
+                className="text-[13px] font-medium bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-700 transition-colors"
+              >
+                + New Post
+              </a>
+              <a
+                href="/dashboard"
+                className="text-[13px] font-medium border border-stone-300 text-stone-700 px-4 py-2 rounded-lg hover:bg-stone-100 transition-colors"
+              >
+                Dashboard
+              </a>
+              <button
+                onClick={handleLogout}
+                className="text-[13px] text-stone-400 hover:text-stone-700 transition-colors"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <a
+                href="/login"
+                className="text-[13px] font-medium border border-stone-300 text-stone-700 px-4 py-2 rounded-lg hover:bg-stone-100 transition-colors"
+              >
+                Login
+              </a>
+              <a
+                href="/register"
+                className="text-[13px] font-medium bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-700 transition-colors"
+              >
+                Register
+              </a>
+            </>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </header>
+
+      {/* Section label */}
+      <p className="text-center pt-8 pb-2 text-[11px] font-medium tracking-[2px] uppercase text-stone-400">
+        Latest stories
+      </p>
+
+      {/* Feed */}
+      <div className="max-w-2xl mx-auto px-6 pb-12 space-y-4">
+        {posts.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-stone-400 text-sm">
+              No posts yet — write your first one.
+            </p>
+            <a
+              href="/create-post"
+              className="mt-4 inline-block text-[13px] font-medium border border-stone-300 rounded-lg px-4 py-2 text-stone-700 hover:bg-stone-100 transition-colors"
+            >
+              Start writing →
+            </a>
+          </div>
+        ) : (
+          posts.map((post: any) => (
+            <article
+              key={post.id}
+              className="bg-white border border-stone-200 rounded-xl p-6 hover:border-stone-300 transition-colors group"
+            >
+              {post.tag && (
+                <p className="text-[11px] font-medium tracking-[1.5px] uppercase text-stone-400 mb-2">
+                  {post.tag}
+                </p>
+              )}
+
+              <h2 className="font-serif text-[20px] font-semibold text-stone-900 leading-snug mb-2">
+                {post.title}
+              </h2>
+
+              <p className="text-[14px] text-stone-500 leading-relaxed mb-4 line-clamp-2">
+                {post.content}
+              </p>
+
+              <div className="flex items-center justify-between border-t border-stone-100 pt-3">
+                {/* Author */}
+                <div className="flex items-center gap-2 text-[13px] text-stone-500">
+                  <span className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-[10px] font-medium flex items-center justify-center">
+                    {post.author?.name?.[0] ?? "U"}
+                  </span>
+                  {post.author?.name || "Anonymous"}
+                </div>
+
+                {/* Meta */}
+                <div className="flex items-center gap-3">
+                  <span className="text-[12px] text-stone-400">
+                    {new Date(post.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                  <a
+                    href={`/posts/${post.id}`}
+                    className="text-[12px] font-medium border border-stone-200 rounded-md px-3 py-1 text-stone-700 hover:bg-stone-50 transition-colors"
+                  >
+                    Read →
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))
+        )}
+      </div>
     </div>
   );
 }
