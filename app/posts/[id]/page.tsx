@@ -18,13 +18,20 @@ export default async function PostPage({
     return <div>Post not found</div>;
   }
 
-  return (
-    <div className="max-w-2xl mx-auto mt-10">
-      <h1 className="text-2xl font-bold">{post.title}</h1>
-      <p className="mt-4 text-gray-700">{post.content}</p>
+return (
+  <div className="max-w-2xl mx-auto mt-10">
+    {/* ✅ Add this */}
+    {post.coverImage && (
+      <img
+        src={post.coverImage}
+        alt={post.title}
+        className="w-full h-64 object-cover rounded-xl mb-6"
+      />
+    )}
 
-      {/* Buttons */}
-      <PostActions postId={post.id} />
-    </div>
-  );
+    <h1 className="text-2xl font-bold">{post.title}</h1>
+    <p className="mt-4 text-gray-700">{post.content}</p>
+    <PostActions postId={post.id} />
+  </div>
+)
 }

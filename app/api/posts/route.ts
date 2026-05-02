@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken"
 
 const prisma = new PrismaClient()
 
-// ✅ POST (create post)
 export async function POST(req: Request) {
   try {
     const authHeader = req.headers.get("authorization")
@@ -23,7 +22,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { title, content } = body
+    const { title, content, coverImage } = body  // ✅ added coverImage
 
     if (!title || !content) {
       return NextResponse.json({ message: "Missing fields" }, { status: 400 })
@@ -33,6 +32,7 @@ export async function POST(req: Request) {
       data: {
         title,
         content,
+        coverImage: coverImage || null,  // ✅ added coverImage
         authorId: decoded.userId,
       },
       include: {
@@ -56,7 +56,6 @@ export async function POST(req: Request) {
   }
 }
 
-// ✅ GET (fetch posts with author info)
 export async function GET() {
   try {
     const posts = await prisma.post.findMany({

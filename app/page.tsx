@@ -99,6 +99,19 @@ export default function Home() {
               key={post.id}
               className="bg-white border border-stone-200 rounded-xl p-6 hover:border-stone-300 transition-colors group"
             >
+               {post.coverImage && (
+    <img
+      src={post.coverImage}
+      alt={post.title}
+      className="w-full h-48 object-cover rounded-lg mb-4"
+    />
+  )}
+
+  {post.tag && (
+    <p className="text-[11px] font-medium tracking-[1.5px] uppercase text-stone-400 mb-2">
+      {post.tag}
+    </p>
+  )}
               {post.tag && (
                 <p className="text-[11px] font-medium tracking-[1.5px] uppercase text-stone-400 mb-2">
                   {post.tag}
