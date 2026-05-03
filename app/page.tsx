@@ -21,8 +21,9 @@ export default function Home() {
   }, []);
 
   function handleLogout() {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
+    // In useEffect change:
+const token = localStorage.getItem("accessToken")  // ✅ was "token"
+setIsLoggedIn(!!token)
   }
 
   return (

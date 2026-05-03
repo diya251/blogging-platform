@@ -26,9 +26,10 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
-        localStorage.setItem("token", data.token);
-        window.location.href = "/dashboard";
-      } else {
+  localStorage.setItem("accessToken", data.accessToken);    // ✅ changed
+  localStorage.setItem("refreshToken", data.refreshToken);  // ✅ added
+  window.location.href = "/dashboard";
+} else {
         alert(data.message);
       }
     } catch (err) {

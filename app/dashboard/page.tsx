@@ -58,10 +58,11 @@ export default function Dashboard() {
   }
 
   function handleLogout() {
-    localStorage.removeItem("token");
-    toast.success("Logged out successfully");
-    router.replace("/login");
-  }
+  localStorage.removeItem("accessToken");   // ✅ changed
+  localStorage.removeItem("refreshToken");  // ✅ added
+  toast.success("Logged out successfully");
+  router.replace("/login");
+}
 
   if (loading) {
     return (

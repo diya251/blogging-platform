@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
+import { fetchWithAuth } from "@/lib/auth"
 
 export default function CreatePost() {
   const router = useRouter()
@@ -16,15 +17,15 @@ export default function CreatePost() {
     const file = e.target.files?.[0]
     if (!file) return
     setImageFile(file)
-    setImagePreview(URL.createObjectURL(file)) // ✅ show preview instantly
+    setImagePreview(URL.createObjectURL(file))
   }
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     setLoading(true)
 
-    const token = localStorage.getItem("token")
-    if (!token) {
+    const accessToken = localStorage.getItem("accessToken")
+    if (!accessToken) {
       toast.error("Please login first")
       router.push("/login")
       return
@@ -32,7 +33,7 @@ export default function CreatePost() {
 
     let coverImage = null
 
-    // ✅ Upload image first if one was selected
+    // Upload image first if one was selected
     if (imageFile) {
       const formData = new FormData()
       formData.append("file", imageFile)
@@ -53,12 +54,11 @@ export default function CreatePost() {
       coverImage = uploadData.url
     }
 
-    // ✅ Then create the post with the image URL
-    const res = await fetch("/api/posts", {
+    // ✅ Use fetchWithAuth instead of fetch — handles token refresh automatically
+    const res = await fetchWithAuth("/api/posts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ title, content, coverImage }),
     })
@@ -67,7 +67,6 @@ export default function CreatePost() {
 
     if (!res.ok) {
       if (res.status === 401) {
-        localStorage.removeItem("token")
         toast.error("Session expired, please login again")
         router.push("/login")
         return
